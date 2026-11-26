@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>S3 OS – Win95 redesigned</title>
+<style>
+:root{--desk1:#1d3b4a;--desk2:#2f6f73;--face:#e6e3dc;--ink:#1c1f24;--hi:#fff;--lo:#9a968c;--acc:#3b4fd8;--acc2:#6d7cf2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;font:13px/1.3 "Segoe UI",Tahoma,Verdana,sans-serif;color:var(--ink);user-select:none}
+body{background:linear-gradient(160deg,var(--desk1),var(--desk2));background-attachment:fixed}
+#desk{position:absolute;inset:0 0 40px 0;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,78px);grid-auto-rows:84px;gap:6px;align-content:start;justify-content:start;writing-mode:vertical-lr}
+.ico{writing-mode:horizontal-tb;display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;padding:6px 2px;border-radius:4px;cursor:default;text-align:center;font-size:12px;border:1px solid transparent;background:none;font-family:inherit}
+.ico span{font-size:28px;line-height:1}
+.ico:hover,.ico:focus-visible{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);outline:none}
+.win{position:absolute;background:var(--face);border-radius:6px 6px 2px 2px;box-shadow:inset 1px 1px var(--hi),inset -1px -1px var(--lo),0 8px 24px rgba(0,0,0,.35);border:1px solid #55524a;display:flex;flex-direction:column;min-width:240px;min-height:140px}
+.win.max{inset:0 0 40px 0!important;width:auto!important;height:auto!important;border-radius:0}
+.tb{display:flex;align-items:center;gap:6px;padding:4px 4px 4px 8px;background:linear-gradient(90deg,#8a93a6,#aab1c1);color:#fff;border-radius:5px 5px 0 0;cursor:move;font-weight:600}
+.win.act .tb{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.tb b{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:600}
+.tb button{width:22px;height:20px;border:0;border-radius:3px;background:rgba(255,255,255,.22);color:#fff;font:700 12px/1 inherit;cursor:pointer}
+.tb button:hover{background:rgba(255,255,255,.4)}.tb button.x:hover{background:#d8453b}
+.body{flex:1;overflow:auto;margin:3px;background:#fff;border:1px solid var(--lo);border-radius:2px;user-select:text;position:relative}
+.menu{display:flex;gap:2px;padding:2px 6px;font-size:12px}.menu span{padding:2px 8px;border-radius:3px}.menu span:hover{background:#d3d0c7}
+.btn{background:var(--face);border:1px solid #55524a;border-radius:3px;box-shadow:inset 1px 1px var(--hi),inset -1px -1px var(--lo);font:inherit;padding:5px 10px;cursor:pointer;color:var(--ink)}
+.btn:active{box-shadow:inset 1px 1px var(--lo)}
+#task{position:absolute;left:0;right:0;bottom:0;height:40px;background:var(--face);border-top:1px solid var(--hi);box-shadow:0 -2px 10px rgba(0,0,0,.25);display:flex;align-items:center;gap:6px;padding:4px 6px;z-index:9999}
+#start{font-weight:700;display:flex;gap:6px;align-items:center;padding:4px 12px}
+#tabs{flex:1;display:flex;gap:4px;overflow:hidden}
+.tab{max-width:160px;min-width:60px;flex:1;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tab.on{box-shadow:inset 1px 1px var(--lo);background:#f4f2ec;font-weight:600}
+#clock{padding:4px 10px;border:1px solid var(--lo);border-radius:3px;box-shadow:inset 1px 1px var(--lo);font-size:12px;min-width:64px;text-align:center}
+#sm{position:absolute;left:6px;bottom:44px;width:250px;background:var(--face);border:1px solid #55524a;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);display:none;z-index:10000;overflow:hidden}
+#sm.open{display:flex}
+#sm .side{width:34px;background:linear-gradient(0deg,var(--acc),#1d2a82);color:#fff;writing-mode:vertical-rl;transform:rotate(180deg);padding:10px 6px;font-weight:700;letter-spacing:.5px}
+#sm ul{list-style:none;margin:0;padding:4px;flex:1}
+#sm li button{width:100%;display:flex;gap:10px;align-items:center;border:0;background:none;padding:8px 10px;font:inherit;text-align:left;border-radius:4px;cursor:pointer}
+#sm li button:hover{background:var(--acc);color:#fff}
+#sm hr{border:0;border-top:1px solid var(--lo);margin:4px 6px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,76px);gap:8px;padding:10px}
+.files div{text-align:center;font-size:12px;padding:6px;border-radius:4px}.files div:hover{background:#dfe4ff}.files span{display:block;font-size:26px}
+textarea{width:100%;height:100%;border:0;resize:none;padding:8px;font:13px/1.5 Consolas,monospace;outline:none}
+.calc{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;background:var(--face);min-height:100%}
+.calc output{grid-column:1/-1;background:#fff;border:1px solid var(--lo);padding:8px;text-align:right;font:22px Consolas,monospace;min-height:44px;overflow:hidden}
+.set{padding:12px;display:grid;gap:12px}.sw{display:flex;gap:8px}.sw button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #55524a;cursor:pointer}
+.mine{display:grid;grid-template-columns:repeat(9,26px);gap:2px;padding:10px;justify-content:center}
+.mine button{width:26px;height:26px;padding:0;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.win{animation:pop .12s ease-out}@keyframes pop{from{transform:scale(.96);opacity:0}}}
+@media (max-width:600px){.win:not(.max){width:92vw!important;left:4vw!important}}
+#boot,#login{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff;background:#0b1118}
+#login{background:linear-gradient(160deg,var(--desk1),var(--desk2));display:none}
+#boot h1{font:700 44px/1 "Segoe UI",sans-serif;margin:0;letter-spacing:2px}
+#bar{width:260px;height:10px;border:1px solid #556;border-radius:5px;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .35s}
+#bmsg{font:12px Consolas,monospace;color:#9fb0c3;min-height:16px}
+#login .av{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:40px}
+#login input{padding:8px 12px;border-radius:4px;border:1px solid #55524a;font:inherit;width:220px}
+</style></head><body>
+<div id="boot"><h1>S3 OS</h1><div id="bar"><i></i></div><div id="bmsg"></div></div>
+<div id="login"><div class="av">👤</div><b style="font-size:18px">User</b><input id="pw" type="password" placeholder="Password (any)" aria-label="Password"><button class="btn" id="go">Sign in</button></div>
+<div id="desk"></div>
+<div id="sm"><div class="side">S3 OS</div><ul id="smList"></ul></div>
+<div id="task"><button class="btn" id="start" aria-label="Start menu">◆ Start</button><div id="tabs"></div><div id="clock"></div></div>
+<script>
+var APPS={
+files:{t:'My Computer',i:'🗂️',w:420,h:300,r:function(b){var d=[['Documents','📁'],['Pictures','🖼️'],['Downloads','📥'],['Local Disk (C:)','💽'],['Network','🌐'],['Recycle Bin','🗑️']];b.innerHTML='<div class="files">'+d.map(function(x){return '<div><span>'+x[1]+'</span>'+x[0]+'</div>'}).join('')+'</div>'}},
+note:{t:'Notepad',i:'📝',w:420,h:300,r:function(b){b.innerHTML='<textarea spellcheck="false" placeholder="Start typing…"></textarea>'}},
+calc:{t:'Calculator',i:'🧮',w:260,h:340,r:function(b){var s='';b.innerHTML='<div class="calc"><output>0</output></div>';var c=b.firstChild,o=c.firstChild;
+'C ⌫ % ÷ 7 8 9 × 4 5 6 − 1 2 3 + 0 . ( = '.split(' ').slice(0,20).forEach(function(k){var e=document.createElement('button');e.className='btn';e.textContent=k;e.onclick=function(){
+if(k=='C')s='';else if(k=='⌫')s=s.slice(0,-1);else if(k=='='){try{s=String(Function('"use strict";return ('+s.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'/100')+')')());}catch(e){s=''}}else s+=k;o.textContent=s||'0'};c.appendChild(e)})}},
+mine:{t:'Minesweeper',i:'💣',w:320,h:340,r:function(b){var n=9,m=10,g,op,over;function init(){g=[];op=[];over=0;for(var i=0;i<81;i++){g.push(0);op.push(0)}var k=0;while(k<m){var p=Math.floor(Math.random()*81);if(!g[p]){g[p]=1;k++}}draw()}
+function nb(i){var x=i%n,y=Math.floor(i/n),c=0;for(var a=-1;a<2;a++)for(var d=-1;d<2;d++){var X=x+d,Y=y+a;if(X>=0&&X<n&&Y>=0&&Y<n)c+=g[Y*n+X]}return c}
+function open(i){if(op[i])return;op[i]=1;if(!g[i]&&!nb(i)){var x=i%n,y=Math.floor(i/n);for(var a=-1;a<2;a++)for(var d=-1;d<2;d++){var X=x+d,Y=y+a;if(X>=0&&X<n&&Y>=0&&Y<n)open(Y*n+X)}}}
+function draw(){b.innerHTML='<div class="mine"></div><div style="text-align:center;padding-bottom:8px"><button class="btn">New game</button> <span></span></div>';var f=b.firstChild;
+for(var i=0;i<81;i++)(function(i){var e=document.createElement('button');e.className='btn';if(op[i]||over){e.style.background='#f4f2ec';e.textContent=g[i]?'💥':(nb(i)||'')}e.onclick=function(){if(over)return;if(g[i]){over=1}else open(i);draw();if(over)b.querySelector('span').textContent='Boom. Try again.'};f.appendChild(e)})(i);b.querySelector('.btn:last-of-type').onclick=init}init()}},
+set:{t:'Control Panel',i:'⚙️',w:340,h:250,r:function(b){b.innerHTML='<div class="set"><div><b>Accent colour</b><div class="sw"></div></div><div><b>Desktop</b><div class="sw" id="dk"></div></div></div>';
+[['#3b4fd8','#6d7cf2'],['#0e8a6a','#3cc3a0'],['#c2410c','#f08a4b'],['#a21caf','#d77be3']].forEach(function(c){var e=document.createElement('button');e.style.background=c[0];e.setAttribute('aria-label','Accent '+c[0]);e.onclick=function(){document.documentElement.style.setProperty('--acc',c[0]);document.documentElement.style.setProperty('--acc2',c[1])};b.querySelector('.sw').appendChild(e)});
+[['#1d3b4a','#2f6f73'],['#2b2340','#6b3f6e'],['#1f2a1f','#4d6b3a'],['#111827','#374151']].forEach(function(c){var e=document.createElement('button');e.style.background='linear-gradient(135deg,'+c[0]+','+c[1]+')';e.setAttribute('aria-label','Desktop theme');e.onclick=function(){document.documentElement.style.setProperty('--desk1',c[0]);document.documentElement.style.setProperty('--desk2',c[1])};b.querySelector('#dk').appendChild(e)})}},
+web:{t:'Browser',i:'🌐',w:680,h:460,r:function(b){
+var H=[],p=-1,home=`<body style="font:15px Segoe UI,sans-serif;display:grid;place-items:center;height:90vh;margin:0;background:#f6f5f1;color:#1c1f24"><div style="text-align:center"><h2>S3 Browser</h2><p>Type an address or a search above, or start here:</p><button data-u="https://en.wikipedia.org" onclick="parent.postMessage(this.dataset.u,'*')">Wikipedia</button> <button data-u="https://www.openstreetmap.org" onclick="parent.postMessage(this.dataset.u,'*')">OpenStreetMap</button></div></body>`;
+b.style.cssText='display:flex;flex-direction:column;user-select:auto';
+b.innerHTML=`<div style="display:flex;gap:4px;padding:6px;background:var(--face)"><button class="btn" aria-label="Back">◀</button><button class="btn" aria-label="Forward">▶</button><button class="btn" aria-label="Reload">⟳</button><button class="btn" aria-label="Home">⌂</button><input aria-label="Address" placeholder="Search or enter address" style="flex:1;min-width:0;padding:4px 8px;border:1px solid #55524a;border-radius:3px;font:inherit"><button class="btn" title="Open in a new window" aria-label="Open in a new window">↗</button></div><iframe title="Page" style="flex:1;border:0;width:100%;background:#fff"></iframe>`;
+var q=b.querySelectorAll('button'),inp=b.querySelector('input'),fr=b.querySelector('iframe');
+function url(s){s=s.trim();if(!s)return '';if(s.indexOf('http')==0)return s;if(s.indexOf(' ')<0&&s.indexOf('.')>0)return 'https://'+s;return 'https://www.google.com/search?q='+encodeURIComponent(s)}
+function show(u){if(!u){fr.removeAttribute('src');fr.srcdoc=home;inp.value=''}else{fr.removeAttribute('srcdoc');fr.src=u;inp.value=u}}
+function go(u){H=H.slice(0,p+1);H.push(u);p=H.length-1;show(u)}
+q[0].onclick=function(){if(p>0)show(H[--p])};
+q[1].onclick=function(){if(p<H.length-1)show(H[++p])};
+q[2].onclick=function(){show(H[p]||'')};
+q[3].onclick=function(){go('')};
+q[4].onclick=function(){var u=url(inp.value)||H[p];if(u)window.open(u,'_blank')};
+inp.onkeydown=function(e){if(e.key=='Enter'){var u=url(inp.value);if(!u)return;if(u.indexOf('https://www.google.com/search')==0)window.open(u,'_blank');else go(u)}};
+window.addEventListener('message',function(e){if(e.source===fr.contentWindow&&typeof e.data=='string'&&e.data.indexOf('https:')==0)go(e.data)});
+go('')}},
+about:{t:'About S3 OS',i:'ℹ️',w:300,h:190,r:function(b){b.innerHTML='<div style="padding:16px"><b style="font-size:16px">S3 OS</b><p>A calmer take on the 1995 desktop: the same Start button, taskbar and windows, with softer edges and room to breathe.</p></div>'}}
+};
+/* ---- real file system, settings, notepad, browser notice ---- */
+var FS=(function(){try{var d=JSON.parse(localStorage.getItem('s3fs'));if(d)return d}catch(e){}return {Documents:{'Welcome.txt':'Welcome to S3 OS. Create files and folders in My Computer.'},Pictures:{},Downloads:{},Desktop:{}}})();
+function saveFS(){try{localStorage.setItem('s3fs',JSON.stringify(FS))}catch(e){}}
+var CFG=(function(){try{var d=JSON.parse(localStorage.getItem('s3cfg'));if(d)return d}catch(e){}return {}})();
+function saveCfg(){try{localStorage.setItem('s3cfg',JSON.stringify(CFG))}catch(e){}}
+function applyCfg(){var r=document.documentElement.style;if(CFG.a){r.setProperty('--acc',CFG.a[0]);r.setProperty('--acc2',CFG.a[1])}if(CFG.d){r.setProperty('--desk1',CFG.d[0]);r.setProperty('--desk2',CFG.d[1])}document.body.style.fontSize=(CFG.f||13)+'px'}
+applyCfg();
+tick=function(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:!CFG.h})};
+var NA=null;
+function node(p){var n=FS;for(var i=0;i<p.length;i++)n=n[p[i]];return n}
+function esc(s){return String(s).split('&').join('&amp;').split('<').join('&lt;')}
+var sty=document.createElement('style');sty.textContent='.menu{display:none}.files div.sel{background:#cfd6ff}';document.head.appendChild(sty);
+APPS.files={t:'My Computer',i:'🗂️',w:480,h:360,r:function(b){
+var path=[],sel='',mode='',ks=[];b.style.cssText='display:flex;flex-direction:column;user-select:none';
+function mark(){[].forEach.call(b.querySelectorAll('[data-i]'),function(e){e.className=ks[+e.dataset.i]==sel?'sel':''})}
+function draw(){var n=node(path);ks=Object.keys(n).sort(function(a,c){var da=typeof n[a]=='object',dc=typeof n[c]=='object';return da==dc?(a<c?-1:1):(da?-1:1)});
+var it='';ks.forEach(function(k,i){it+=`<div data-i='${i}'><span>${typeof n[k]=='object'?'📁':'📄'}</span>${esc(k)}</div>`});
+b.innerHTML=`<div style='display:flex;gap:4px;padding:6px;flex-wrap:wrap;background:var(--face)'><button class='btn' data-c='up'>⬆ Up</button><button class='btn' data-c='folder'>New folder</button><button class='btn' data-c='file'>New file</button><button class='btn' data-c='ren'>Rename</button><button class='btn' data-c='del'>Delete</button></div><div style='padding:4px 8px;background:#f4f2ec;border-bottom:1px solid var(--lo)'>This PC${path.map(function(p){return ' › '+esc(p)}).join('')}</div>`+(mode?`<div style='display:flex;gap:4px;padding:6px'><input id='nm' aria-label='Name' placeholder='Name' style='flex:1;min-width:0;padding:4px 8px;border:1px solid #55524a;border-radius:3px;font:inherit'><button class='btn' data-c='ok'>OK</button></div>`:'')+`<div class='files' style='flex:1;overflow:auto;align-content:start'>${it||'<i style="padding:8px">This folder is empty</i>'}</div>`;mark()}
+function ok(){var nm=document.getElementById('nm').value.trim().split('/').join(''),n=node(path);if(nm&&!(nm in n)){if(mode=='folder')n[nm]={};else if(mode=='file')n[nm]='';else if(sel){n[nm]=n[sel];delete n[sel];sel=nm}saveFS()}mode='';draw()}
+b.onclick=function(e){var t=e.target.closest('[data-c]'),f=e.target.closest('[data-i]');
+if(f){sel=ks[+f.dataset.i];mark();return}
+if(!t)return;var c=t.dataset.c;
+if(c=='up'){path.pop();sel='';mode=''}else if(c=='del'){if(sel){delete node(path)[sel];sel='';saveFS()}mode=''}else if(c=='ok'){ok();return}else if(c=='ren'&&!sel)return;else mode=c;
+draw();var i=document.getElementById('nm');if(i){i.focus();if(c=='ren')i.value=sel}};
+b.ondblclick=function(e){var f=e.target.closest('[data-i]');if(!f)return;var k=ks[+f.dataset.i];if(typeof node(path)[k]=='object'){path.push(k);sel='';mode='';draw()}else{NA={path:path.slice(),name:k};launch(k.slice(-4)=='.doc'?'word':k.slice(-6)=='.sheet'?'excel':k.slice(-7)=='.slides'?'ppt':'note')}};
+b.onkeydown=function(e){if(e.key=='Enter'&&e.target.id=='nm')ok()};
+draw()}};
+APPS.note={t:'Notepad',i:'📝',w:440,h:320,r:function(b){var f=NA;NA=null;var path=f?f.path:['Documents'];
+b.style.cssText='display:flex;flex-direction:column;user-select:auto';
+b.innerHTML=`<div style='display:flex;gap:4px;padding:6px;background:var(--face)'><input style='flex:1;min-width:0;padding:4px 8px;border:1px solid #55524a;border-radius:3px;font:inherit' placeholder='File name, e.g. notes.txt' aria-label='File name'><button class='btn'>Save</button><span style='align-self:center;font-size:12px'></span></div><textarea spellcheck='false' placeholder='Start typing…' style='flex:1;height:auto'></textarea>`;
+var inp=b.querySelector('input'),ta=b.querySelector('textarea'),st=b.querySelector('span');if(f){inp.value=f.name;ta.value=node(path)[f.name]||''}
+b.querySelector('button').onclick=function(){var nm=inp.value.trim().split('/').join('');if(!nm){st.textContent='Enter a file name';return}var d=node(path);if(typeof d[nm]=='object'){st.textContent='That name is a folder';return}d[nm]=ta.value;saveFS();st.textContent='Saved in '+(path.join(' › ')||'This PC')}}};
+APPS.set={t:'Control Panel',i:'⚙️',w:380,h:400,r:function(b){
+var A=[['#3b4fd8','#6d7cf2'],['#0e8a6a','#3cc3a0'],['#c2410c','#f08a4b'],['#a21caf','#d77be3']],D=[['#1d3b4a','#2f6f73'],['#2b2340','#6b3f6e'],['#1f2a1f','#4d6b3a'],['#111827','#374151']];
+b.innerHTML=`<div class='set'><div><b>Accent colour</b><div class='sw' id='sa'></div></div><div><b>Desktop theme</b><div class='sw' id='sd'></div></div><div><b>Text size</b><br><input type='range' min='11' max='18' value='${CFG.f||13}' aria-label='Text size' style='width:100%'></div><div><b>Clock</b><br><label><input type='checkbox' id='h24'> 24-hour clock</label></div><div><b>System</b><div id='info' style='font-size:12px;line-height:1.6'></div></div></div>`;
+A.forEach(function(c){var e=document.createElement('button');e.style.background=c[0];e.setAttribute('aria-label','Accent '+c[0]);e.onclick=function(){CFG.a=c;saveCfg();applyCfg()};b.querySelector('#sa').appendChild(e)});
+D.forEach(function(c){var e=document.createElement('button');e.style.background='linear-gradient(135deg,'+c[0]+','+c[1]+')';e.setAttribute('aria-label','Desktop theme');e.onclick=function(){CFG.d=c;saveCfg();applyCfg()};b.querySelector('#sd').appendChild(e)});
+b.querySelector('input[type=range]').oninput=function(){CFG.f=+this.value;saveCfg();applyCfg()};
+var h=b.querySelector('#h24');h.checked=!!CFG.h;h.onchange=function(){CFG.h=h.checked;saveCfg();tick()};
+b.querySelector('#info').innerHTML='Screen: '+screen.width+'×'+screen.height+'<br>CPU threads: '+(navigator.hardwareConcurrency||'unknown')+'<br>Memory: '+(navigator.deviceMemory?navigator.deviceMemory+' GB':'unknown')+'<br>Network: '+(navigator.onLine?'online':'offline')+'<br>S3 OS version 0.3'}};
+var ow=APPS.web.r;APPS.web.r=function(b){ow(b);b.insertAdjacentHTML('beforeend',`<div style='padding:4px 8px;font-size:12px;background:var(--face);border-top:1px solid var(--lo)'>Page blank? Many sites refuse to load inside another page. Press ↗ to open it in a full browser window.</div>`)};
+/* ---- office apps ---- */
+//PURE
+var CT=(function(){var t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc(u){var c=0xFFFFFFFF;for(var i=0;i<u.length;i++)c=CT[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+async function pipe(u,S){var s=new Blob([u]).stream().pipeThrough(S);return new Uint8Array(await new Response(s).arrayBuffer())}
+function deflate(u){return pipe(u,new CompressionStream('deflate-raw'))}
+function inflate(u){return pipe(u,new DecompressionStream('deflate-raw'))}
+async function makeZip(files){var parts=[],cd=[],off=0,enc=new TextEncoder(),cds=0;
+for(var f of files){var nm=enc.encode(f.name),cr=crc(f.data),cm=await deflate(f.data),me=8;if(cm.length>=f.data.length){cm=f.data;me=0}
+var lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,me,true);lh.setUint16(12,0x21,true);lh.setUint32(14,cr,true);lh.setUint32(18,cm.length,true);lh.setUint32(22,f.data.length,true);lh.setUint16(26,nm.length,true);
+parts.push(lh.buffer,nm,cm);
+var ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,me,true);ch.setUint16(14,0x21,true);ch.setUint32(16,cr,true);ch.setUint32(20,cm.length,true);ch.setUint32(24,f.data.length,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+cd.push(ch.buffer,nm);off+=30+nm.length+cm.length;cds+=46+nm.length}
+var e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cds,true);e.setUint32(16,off,true);
+return new Blob(parts.concat(cd,[e.buffer]),{type:'application/zip'})}
+function readZip(buf){var u=new Uint8Array(buf),dv=new DataView(buf),e=u.length-22;while(e>=0&&dv.getUint32(e,true)!=0x06054b50)e--;if(e<0)throw new Error('not a zip');
+var n=dv.getUint16(e+10,true),p=dv.getUint32(e+16,true),out=[],dec=new TextDecoder();
+for(var i=0;i<n;i++){var nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true);
+out.push({name:dec.decode(u.subarray(p+46,p+46+nl)),meth:dv.getUint16(p+10,true),cs:dv.getUint32(p+20,true),us:dv.getUint32(p+24,true),lo:dv.getUint32(p+42,true)});p+=46+nl+xl+cl}
+out.data=u;return out}
+async function extract(z,f){var dv=new DataView(z.data.buffer,z.data.byteOffset),s=f.lo+30+dv.getUint16(f.lo+26,true)+dv.getUint16(f.lo+28,true),raw=z.data.subarray(s,s+f.cs);return f.meth==0?raw:await inflate(raw)}
+function val(D,r,c,seen){var v=D[r]&&D[r][c];if(v==null||v==='')return 0;if(String(v).charAt(0)!='=')return isNaN(v)?v:+v;
+var key=r+','+c;if(seen.indexOf(key)>-1)return '#CYCLE';seen=seen.concat(key);
+var e=String(v).slice(1).toUpperCase().split(' ').join('');
+e=e.replace(/(SUM|AVG|MIN|MAX|COUNT)[(]([A-J])([0-9]+):([A-J])([0-9]+)[)]/g,function(_,fn,a,b1,c2,d){var xs=[],s=0;
+for(var i=+b1-1;i<+d;i++)for(var j=a.charCodeAt(0)-65;j<=c2.charCodeAt(0)-65;j++){var x=val(D,i,j,seen);if(typeof x=='number'){xs.push(x);s+=x}}
+return fn=='SUM'?s:fn=='AVG'?(xs.length?s/xs.length:0):fn=='MIN'?(xs.length?Math.min.apply(0,xs):0):fn=='MAX'?(xs.length?Math.max.apply(0,xs):0):xs.length});
+e=e.replace(/([A-J])([0-9]+)/g,function(_,a,n){var x=val(D,+n-1,a.charCodeAt(0)-65,seen);return typeof x=='number'?'('+x+')':'0'});
+if(!/^[0-9+*\/().-]*$/.test(e))return '#ERR';
+try{var res=Function('return ('+e+')')();return isFinite(res)?Math.round(res*1e6)/1e6:'#ERR'}catch(x){return '#ERR'}}
+//ENDPURE
+function dl(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}
+var TBI="padding:4px 6px;border:1px solid #55524a;border-radius:3px;font:inherit";
+function nameOf(inp,ext){var n=inp.value.trim().split('/').join('');if(!n)return '';return n.slice(-ext.length)==ext?n:n+ext}
+
+APPS.word={t:'Word',i:'📄',w:580,h:430,r:function(b){var f=NA;NA=null;var path=f?f.path:['Documents'];
+b.style.cssText='display:flex;flex-direction:column;user-select:auto;background:#cfd2d8';
+b.innerHTML=`<div class='tbar' style='display:flex;gap:3px;padding:6px;flex-wrap:wrap;background:var(--face)'><input placeholder='Name, e.g. letter' aria-label='File name' style='width:110px;${TBI}'><button class='btn' data-s='1'>Save</button><button class='btn' data-x='bold'><b>B</b></button><button class='btn' data-x='italic'><i>I</i></button><button class='btn' data-x='underline'><u>U</u></button><button class='btn' data-x='justifyLeft' aria-label='Align left'>⇤</button><button class='btn' data-x='justifyCenter' aria-label='Centre'>↔</button><button class='btn' data-x='insertUnorderedList'>• List</button><select aria-label='Style'><option value='p'>Text</option><option value='h1'>Heading 1</option><option value='h2'>Heading 2</option></select><button class='btn' data-p='1'>Print</button><span style='align-self:center;font-size:12px'></span></div><div style='flex:1;overflow:auto;padding:12px'><div class='ed' contenteditable='true' style='background:#fff;min-height:100%;padding:28px 34px;box-shadow:0 1px 6px rgba(0,0,0,.3);font:14px/1.6 Georgia,serif;outline:none'></div></div>`;
+var tb=b.querySelector('.tbar'),inp=tb.querySelector('input'),ed=b.querySelector('.ed'),st=tb.querySelector('span');
+if(f){inp.value=f.name.replace('.doc','');ed.innerHTML=node(path)[f.name]||''}
+tb.onmousedown=function(e){if(e.target.closest('button'))e.preventDefault()};
+tb.onclick=function(e){var t=e.target.closest('button');if(!t)return;
+if(t.dataset.x)document.execCommand(t.dataset.x);
+else if(t.dataset.p)window.print();
+else if(t.dataset.s){var n=nameOf(inp,'.doc');if(!n){st.textContent='Enter a name';return}node(path)[n]=ed.innerHTML;saveFS();st.textContent='Saved '+n}};
+tb.querySelector('select').onchange=function(){document.execCommand('formatBlock',false,this.value);ed.focus()}}};
+
+APPS.excel={t:'Excel',i:'📊',w:660,h:430,r:function(b){var f=NA;NA=null;var path=f?f.path:['Documents'],D=[];
+if(f){try{D=JSON.parse(node(path)[f.name])||[]}catch(e){}}
+var R=20,C=10,h=`<table style='border-collapse:collapse;font-size:12px'><tr><th></th>`,th="background:var(--face);border:1px solid var(--lo);";
+for(var j=0;j<C;j++)h+=`<th style='${th}min-width:68px'>${String.fromCharCode(65+j)}</th>`;
+h+='</tr>';for(var i=0;i<R;i++){h+=`<tr><th style='${th}padding:0 6px'>${i+1}</th>`;for(j=0;j<C;j++)h+=`<td style='border:1px solid #ccc;padding:0'><input data-r='${i}' data-c='${j}' aria-label='${String.fromCharCode(65+j)}${i+1}' style='width:68px;border:0;padding:3px 4px;font:inherit;background:transparent'></td>`;h+='</tr>'}h+='</table>';
+b.style.cssText='display:flex;flex-direction:column;user-select:auto';
+b.innerHTML=`<div style='display:flex;gap:6px;padding:6px;align-items:center;flex-wrap:wrap;background:var(--face)'><input placeholder='Name, e.g. budget' aria-label='File name' style='width:120px;${TBI}'><button class='btn'>Save</button><span style='font-size:12px'>Formulas: =A1+B1, =SUM(A1:A5), AVG, MIN, MAX, COUNT</span></div><div style='flex:1;overflow:auto'>${h}</div>`;
+var inp=b.querySelector('input'),st=b.querySelector('span');if(f)inp.value=f.name.replace('.sheet','');
+function disp(i,j){var v=D[i]&&D[i][j];if(v==null||v==='')return '';return String(v).charAt(0)=='='?val(D,i,j,[]):v}
+function refresh(){[].forEach.call(b.querySelectorAll('input[data-r]'),function(e){if(e!==document.activeElement)e.value=disp(+e.dataset.r,+e.dataset.c)})}
+b.addEventListener('focusin',function(e){var t=e.target;if(t.dataset.r!==undefined){var v=D[+t.dataset.r]&&D[+t.dataset.r][+t.dataset.c];t.value=v==null?'':v}});
+b.addEventListener('focusout',function(e){var t=e.target;if(t.dataset.r!==undefined){var i=+t.dataset.r,j=+t.dataset.c;D[i]=D[i]||[];D[i][j]=t.value;refresh()}});
+b.querySelector('.btn').onclick=function(){var n=nameOf(inp,'.sheet');if(!n){st.textContent='Enter a name';return}node(path)[n]=JSON.stringify(D);saveFS();st.textContent='Saved '+n};
+refresh()}};
+
+APPS.ppt={t:'PowerPoint',i:'📽️',w:660,h:430,r:function(b){var f=NA;NA=null;var path=f?f.path:['Documents'],S=[{t:'My presentation',b:'Click to edit this slide'}],cur=0;
+if(f){try{S=JSON.parse(node(path)[f.name])||S}catch(e){}}
+b.style.cssText='display:flex;flex-direction:column;user-select:auto';
+b.innerHTML=`<div class='tbar' style='display:flex;gap:4px;padding:6px;flex-wrap:wrap;align-items:center;background:var(--face)'><input placeholder='Name, e.g. pitch' aria-label='File name' style='width:110px;${TBI}'><button class='btn' data-a='save'>Save</button><button class='btn' data-a='add'>+ Slide</button><button class='btn' data-a='del'>Delete slide</button><button class='btn' data-a='show'>▶ Present</button><span style='font-size:12px'></span></div><div style='flex:1;display:flex;min-height:0'><div class='ls' style='width:140px;overflow:auto;background:#d9d6cd;padding:6px;display:grid;gap:6px;align-content:start'></div><div style='flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0'><input class='st' aria-label='Slide title' placeholder='Slide title' style='font:600 20px inherit;${TBI}'><textarea class='sb' aria-label='Slide text' placeholder='Slide text' style='flex:1;height:auto;border:1px solid #55524a;border-radius:3px;font-size:15px'></textarea></div></div>`;
+var tb=b.querySelector('.tbar'),inp=tb.querySelector('input'),sp=tb.querySelector('span'),ls=b.querySelector('.ls'),ti=b.querySelector('.st'),bo=b.querySelector('.sb');
+if(f)inp.value=f.name.replace('.slides','');
+function list(){ls.innerHTML=S.map(function(s,i){return `<div data-i='${i}' style='background:#fff;border:2px solid ${i==cur?'var(--acc)':'transparent'};border-radius:3px;padding:8px 6px;font-size:11px;cursor:default;min-height:48px'><b>${i+1}</b> ${esc(s.t||'Untitled')}</div>`}).join('');ti.value=S[cur].t;bo.value=S[cur].b}
+ti.oninput=function(){S[cur].t=ti.value;ls.children[cur].innerHTML='<b>'+(cur+1)+'</b> '+esc(ti.value||'Untitled')};bo.oninput=function(){S[cur].b=bo.value};
+ls.onclick=function(e){var d=e.target.closest('[data-i]');if(d){cur=+d.dataset.i;list()}};
+function present(){var o=document.createElement('div'),k=cur;o.style.cssText='position:fixed;inset:0;z-index:99990;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;padding:8vw;cursor:pointer';
+function show(){o.innerHTML=`<h1 style='font-size:5vw;margin:0 0 3vw'>${esc(S[k].t)}</h1><div style='font-size:2.6vw;line-height:1.5;white-space:pre-wrap'>${esc(S[k].b)}</div><div style='position:absolute;right:20px;bottom:14px;font-size:14px;opacity:.6'>${k+1} / ${S.length}   Esc to exit</div>`}
+function key(e){if(e.key=='Escape')end();else if(e.key=='ArrowRight'||e.key==' '){if(k<S.length-1){k++;show()}}else if(e.key=='ArrowLeft'){if(k>0){k--;show()}}}
+function end(){o.remove();document.removeEventListener('keydown',key)}
+o.onclick=function(){if(k<S.length-1){k++;show()}else end()};document.addEventListener('keydown',key);show();document.body.appendChild(o)}
+tb.onclick=function(e){var t=e.target.closest('button');if(!t)return;var a=t.dataset.a;
+if(a=='add'){S.splice(cur+1,0,{t:'New slide',b:''});cur++;list()}
+else if(a=='del'){if(S.length>1){S.splice(cur,1);cur=Math.min(cur,S.length-1);list()}}
+else if(a=='show')present();
+else if(a=='save'){var n=nameOf(inp,'.slides');if(!n){sp.textContent='Enter a name';return}node(path)[n]=JSON.stringify(S);saveFS();sp.textContent='Saved '+n}};
+list()}};
+
+APPS.pdf={t:'PDF Reader',i:'📕',w:620,h:450,r:function(b){b.style.cssText='display:flex;flex-direction:column';
+b.innerHTML=`<div style='display:flex;gap:8px;padding:6px;background:var(--face);align-items:center'><label class='btn'>Open PDF…<input type='file' accept='application/pdf,.pdf' style='display:none'></label><span style='font-size:12px'>Pick a PDF from this computer, or drop one here.</span></div><iframe title='PDF' style='flex:1;border:0;background:#777'></iframe>`;
+var fr=b.querySelector('iframe'),inp=b.querySelector('input'),sp=b.querySelector('span');
+function load(f){if(!f)return;fr.src=URL.createObjectURL(f);sp.textContent=f.name}
+inp.onchange=function(){load(inp.files[0])};b.ondragover=function(e){e.preventDefault()};b.ondrop=function(e){e.preventDefault();load(e.dataTransfer.files[0])}}};
+
+APPS.zip={t:'WinZip',i:'🗜️',w:520,h:400,r:function(b){var add=[],zf=null;
+b.style.cssText='display:flex;flex-direction:column;user-select:auto';
+b.innerHTML=`<div style='display:flex;gap:6px;padding:6px;flex-wrap:wrap;background:var(--face)'><label class='btn'>Add files…<input type='file' multiple style='display:none' class='a'></label><button class='btn' data-z='make'>Create ZIP</button><label class='btn'>Open ZIP…<input type='file' accept='.zip' style='display:none' class='o'></label><button class='btn' data-z='all'>Extract all</button></div><div class='l' style='flex:1;overflow:auto;padding:8px;font-size:12px;line-height:2'></div><div class='m' style='padding:4px 8px;font-size:12px;background:var(--face)'>Add files to build a ZIP, or open a ZIP to see what is inside.</div>`;
+var L=b.querySelector('.l'),M=b.querySelector('.m');
+function say(s){M.textContent=s}
+function size(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.ceil(n/1024)+' KB'}
+function show(){var h='';if(zf){h+='<b>Inside the ZIP</b><br>';zf.forEach(function(f,i){h+=`${esc(f.name)} (${size(f.us)}) <button class='btn' data-e='${i}'>Save</button><br>`})}else if(add.length){h+='<b>Ready to zip</b><br>'+add.map(function(f){return esc(f.name)+' ('+size(f.size)+')'}).join('<br>')}L.innerHTML=h}
+b.querySelector('.a').onchange=function(e){add=[].slice.call(e.target.files);zf=null;show();say(add.length+' file(s) ready. Press Create ZIP.')};
+b.querySelector('.o').onchange=async function(e){var f=e.target.files[0];if(!f)return;try{zf=readZip(await f.arrayBuffer());add=[];show();say(f.name+': '+zf.length+' items')}catch(x){say('That does not look like a ZIP file.')}};
+b.onclick=async function(e){var t=e.target.closest('button');if(!t)return;var f;
+if(t.dataset.z=='make'){if(!add.length){say('Add files first.');return}var fl=[];for(f of add)fl.push({name:f.name,data:new Uint8Array(await f.arrayBuffer())});dl(await makeZip(fl),'archive.zip');say('Created archive.zip')}
+else if(t.dataset.z=='all'){if(!zf)return;for(f of zf){if(f.name.slice(-1)!='/')dl(new Blob([await extract(zf,f)]),f.name.split('/').pop())}say('Extracted '+zf.length+' items')}
+else if(t.dataset.e!==undefined){f=zf[+t.dataset.e];dl(new Blob([await extract(zf,f)]),f.name.split('/').pop())}}}};
+/* ---- real browser (uses the S3 OS helper proxy when running on the USB / installed system) ---- */
+APPS.web={t:'Browser',i:'🌐',w:720,h:480,r:function(b){
+var PX='http://127.0.0.1:8765/',H=[],p=-1,live=null;
+var home=`<body style="font:15px Segoe UI,sans-serif;display:grid;place-items:center;height:90vh;margin:0;background:#f6f5f1;color:#1c1f24"><div style="text-align:center;width:80%;max-width:420px"><h2>S3 Browser</h2><form onsubmit="parent.postMessage('q:'+this.q.value,'*');return false"><input name="q" placeholder="Search or enter address" aria-label="Search or enter address" style="width:100%;padding:10px 14px;font:inherit;border:1px solid #55524a;border-radius:20px"></form><p><button data-u="https://en.wikipedia.org" onclick="parent.postMessage('q:'+this.dataset.u,'*')">Wikipedia</button> <button data-u="https://news.ycombinator.com" onclick="parent.postMessage('q:'+this.dataset.u,'*')">Hacker News</button> <button data-u="https://www.openstreetmap.org" onclick="parent.postMessage('q:'+this.dataset.u,'*')">OpenStreetMap</button></p></div></body>`;
+b.style.cssText='display:flex;flex-direction:column;user-select:auto';
+b.innerHTML=`<div style='display:flex;gap:4px;padding:6px;background:var(--face)'><button class='btn' aria-label='Back'>◀</button><button class='btn' aria-label='Forward'>▶</button><button class='btn' aria-label='Reload'>⟳</button><button class='btn' aria-label='Home'>⌂</button><input aria-label='Address' placeholder='Search or enter address' style='flex:1;min-width:0;padding:4px 8px;border:1px solid #55524a;border-radius:3px;font:inherit'><button class='btn' title='Open in a new window' aria-label='Open in a new window'>↗</button></div><iframe title='Page' style='flex:1;border:0;width:100%;background:#fff'></iframe><div class='sb' style='padding:3px 8px;font-size:12px;background:var(--face);border-top:1px solid var(--lo);min-height:20px'></div>`;
+var q=b.querySelectorAll('button'),inp=b.querySelector('input'),fr=b.querySelector('iframe'),st=b.querySelector('.sb');
+function ping(){return fetch(PX+'ping',{mode:'no-cors'}).then(function(){live=true},function(){live=false})}
+function norm(s){s=s.trim();if(!s)return '';if(s.indexOf('http')==0)return s;if(s.indexOf(' ')<0&&s.indexOf('.')>0)return 'https://'+s;return 'https://html.duckduckgo.com/html/?q='+encodeURIComponent(s)}
+function load(u){if(!u){fr.removeAttribute('src');fr.srcdoc=home;inp.value='';st.textContent='';return}
+inp.value=u;fr.removeAttribute('srcdoc');
+if(live){fr.src=PX+'proxy?u='+encodeURIComponent(u);st.textContent='Loading…'}
+else{st.textContent='Preview mode: pages open in a new tab';fr.srcdoc=`<body style='font:15px Segoe UI,sans-serif;padding:28px;line-height:1.6'><h3>Browsing runs on the S3 OS system</h3><p>Websites refuse to be shown inside another page, and this preview has no system service to work around that. On the S3 OS USB or an installed system, pages load right here.</p><p><a href='${esc(u).split("'").join('%27')}' target='_blank' rel='noopener'>Open ${esc(u)} in a new tab</a></p></body>`}}
+function go(u){(live===null?ping():Promise.resolve()).then(function(){if(!u){H=H.slice(0,p+1);H.push('');p=H.length-1;load('');return}H=H.slice(0,p+1);H.push(u);p=H.length-1;load(u);if(!live){try{window.open(u,'_blank')}catch(e){}}})}
+q[0].onclick=function(){if(p>0)load(H[--p])};
+q[1].onclick=function(){if(p<H.length-1)load(H[++p])};
+q[2].onclick=function(){load(H[p]||'')};
+q[3].onclick=function(){go('')};
+q[4].onclick=function(){var u=norm(inp.value)||H[p];if(u)window.open(u,'_blank')};
+inp.onkeydown=function(e){if(e.key=='Enter'){var u=norm(inp.value);if(u)go(u)}};
+fr.onload=function(){if(live)st.textContent=''};
+window.addEventListener('message',function(e){if(e.source!==fr.contentWindow)return;var d=e.data;
+if(d&&d.s3url){st.textContent='';if(H[p]!==d.s3url){H=H.slice(0,p+1);H.push(d.s3url);p=H.length-1}inp.value=d.s3url}
+else if(typeof d=='string'&&d.indexOf('q:')==0){var u=norm(d.slice(2));if(u)go(u)}});
+go('')}};
+var desk=document.getElementById('desk'),tabs=document.getElementById('tabs'),sm=document.getElementById('sm'),W=[],z=10;
+Object.keys(APPS).forEach(function(k){var a=APPS[k];var b=document.createElement('button');b.className='ico';b.innerHTML='<span>'+a.i+'</span>'+a.t;b.ondblclick=function(){launch(k)};b.onkeydown=function(e){if(e.key=='Enter')launch(k)};desk.appendChild(b);
+if(k!='about'){var li=document.createElement('li'),bt=document.createElement('button');bt.innerHTML='<span>'+a.i+'</span>'+a.t;bt.onclick=function(){launch(k)};li.appendChild(bt);document.getElementById('smList').appendChild(li)}});
+document.getElementById('smList').insertAdjacentHTML('beforeend','<hr><li><button onclick="launch(\'about\')"><span>ℹ️</span>About S3 OS</button></li><li><button onclick="sys(\'install\')"><span>💿</span>Install S3 OS…</button></li><li><button onclick="sys(\'reboot\')"><span>🔄</span>Restart</button></li><li><button onclick="sys(\'poweroff\')"><span>⏻</span>Shut down</button></li>');
+document.getElementById('start').onclick=function(e){e.stopPropagation();sm.classList.toggle('open')};
+document.addEventListener('click',function(e){if(!sm.contains(e.target))sm.classList.remove('open')});
+function focusW(w){z++;w.el.style.zIndex=z;W.forEach(function(x){x.el.classList.remove('act');x.tab.classList.remove('on')});w.el.classList.add('act');w.tab.classList.add('on');w.el.style.display='flex'}
+function launch(k){sm.classList.remove('open');var a=APPS[k],el=document.createElement('div');el.className='win';var n=W.length%6;
+el.style.cssText='width:'+a.w+'px;height:'+a.h+'px;left:'+(90+n*28)+'px;top:'+(30+n*28)+'px';
+el.innerHTML='<div class="tb"><span>'+a.i+'</span><b>'+a.t+'</b><button aria-label="Minimise">–</button><button aria-label="Maximise">▢</button><button class="x" aria-label="Close">✕</button></div>'+(k=='note'?'<div class="menu"><span>File</span><span>Edit</span><span>Search</span><span>Help</span></div>':'')+'<div class="body"></div>';
+document.body.appendChild(el);a.r(el.querySelector('.body'));
+var tab=document.createElement('button');tab.className='btn tab';tab.textContent=a.i+' '+a.t;tabs.appendChild(tab);var w={el:el,tab:tab};W.push(w);
+var bs=el.querySelectorAll('.tb button');
+bs[0].onclick=function(e){e.stopPropagation();el.style.display='none';tab.classList.remove('on')};
+bs[1].onclick=function(){el.classList.toggle('max')};
+bs[2].onclick=function(){el.remove();tab.remove();W.splice(W.indexOf(w),1)};
+tab.onclick=function(){if(el.style.display!='none'&&el.classList.contains('act'))bs[0].click();else focusW(w)};
+el.addEventListener('mousedown',function(){focusW(w)});
+var tb=el.querySelector('.tb');tb.ondblclick=function(){el.classList.toggle('max')};
+tb.addEventListener('pointerdown',function(e){if(e.target.tagName=='BUTTON'||el.classList.contains('max'))return;var dx=e.clientX-el.offsetLeft,dy=e.clientY-el.offsetTop;tb.setPointerCapture(e.pointerId);
+tb.onpointermove=function(m){el.style.left=Math.max(-100,m.clientX-dx)+'px';el.style.top=Math.max(0,m.clientY-dy)+'px'};tb.onpointerup=function(){tb.onpointermove=null}});
+focusW(w)}
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}tick();setInterval(tick,15000);
+var steps=['Checking memory…','Starting kernel…','Mounting disk (C:)…','Loading drivers…','Starting network…','Loading desktop…'],bi=0,bt=setInterval(function(){document.querySelector('#bar i').style.width=Math.round((bi+1)/steps.length*100)+'%';document.getElementById('bmsg').textContent=steps[bi++];if(bi>=steps.length){clearInterval(bt);setTimeout(function(){document.getElementById('boot').style.display='none';document.getElementById('login').style.display='flex';document.getElementById('pw').focus()},500)}},600);
+function sys(a){if(a=='install'&&!confirm('Open the S3 OS installer? Nothing is erased until you confirm inside the installer.'))return;fetch('http://127.0.0.1:8765/'+a,{mode:'no-cors'}).then(function(){document.getElementById('bmsg').textContent=''}).catch(function(){alert('This only works when S3 OS is running from the USB stick or installed on a computer.')})}
+function signin(){document.getElementById('login').style.display='none';launch('about')}
+document.getElementById('go').onclick=signin;document.getElementById('pw').onkeydown=function(e){if(e.key=='Enter')signin()};
+</script></body></html>
